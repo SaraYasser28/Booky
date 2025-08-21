@@ -59,9 +59,10 @@ lib/
 
 
 ## To Be Made
-
-* [ ] Connect to a backend (Firebase or API)
-* [ ] Implement persistent storage for favorites
+* [ ] Phase 2 | Adding Functionality to the UI
 * [ ] Add search functionality
+* [ ] Implement persistent storage for favorites
 * [ ] Enhance book categorization with filters and sorting
+* [ ] Connect to a backend (Firebase or API)
 * [ ] Dark mode support
+
