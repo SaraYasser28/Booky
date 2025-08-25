@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -118,45 +116,22 @@ class BookDetails extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.activeButton,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                  ),
-                  child: const Text(
-                    "Add to My Books",
-                    style: TextStyle(fontSize: 13, color: Colors.white),
-                  ),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.activeButton,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                  ),
-                  child: const Text(
-                    "Add to Favourites",
-                    style: TextStyle(fontSize: 13, color: Colors.white),
-                  ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 14,
                 ),
-              ],
+              ),
+              child: const Text(
+                "Add to Favourites",
+                style: TextStyle(fontSize: 17, color: Colors.white),
+              ),
             ),
 
             const SizedBox(height: 20),

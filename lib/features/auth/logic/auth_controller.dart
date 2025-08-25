@@ -4,10 +4,11 @@ class AuthController {
   // Email validation
   FormFieldValidator<String> validateEmail = (value) {
     if (value == null || value.isEmpty) {
-      return "Enter your email";
+      return "Please enter your email";
     }
-    if (!value.contains("@")) {
-      return "Enter a valid email";
+    final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+    if (!emailRegex.hasMatch(value.trim())) {
+      return "Enter a valid email address";
     }
     return null;
   };
@@ -15,7 +16,10 @@ class AuthController {
   // Username validation
   FormFieldValidator<String> validateUsername = (value) {
     if (value == null || value.isEmpty) {
-      return "Enter your username";
+      return "Please enter your username";
+    }
+    if (value.length < 3) {
+      return "Username must be at least 3 characters";
     }
     return null;
   };

@@ -1,97 +1,113 @@
-import 'package:booky_library/core/constants/app_images.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../widgets/book_card.dart';
+import '../../../core/constants/app_images.dart';
 import '../../../core/widgets/curved_appbar.dart';
 import '../../../core/widgets/custom_drawer.dart';
+import '../logic/cubit/book_cubit.dart';
+import '../logic/cubit/book_state.dart';
+import '../widgets/book_card.dart';
 
 class CategoryScreen extends StatelessWidget {
-  const CategoryScreen({super.key});
+  final String genre;
+
+  const CategoryScreen({super.key, required this.genre});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: CustomDrawer(username: ''),
-      body: CustomScrollView(
-        slivers: [
-          CurvedAppBar(
-            title: "Booky",
-            subtitle: "Fantasy",
-            backgroundImage: AppImages.fantasy,
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Books (8)",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
+
+      body: BlocBuilder<BookCubit, BookState>(
+        builder: (context, state) {
+          if (state is BookInitial) {
+            context.read<BookCubit>().fetchBooksByGenre(genre);
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          }
+
+          if (state is BookLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          }
+
+          if (state is BookError) {
+            return Center(child: Text("Error: ${state.message}"));
+          }
+
+          if (state is BookLoaded) {
+            final books = state.books;
+
+            return CustomScrollView(
+              slivers: [
+                CurvedAppBar(
+                  title: "Booky",
+                  subtitle: genre,
+                  backgroundImage: _getGenreImage(genre),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Books (${books.length})",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: books.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 0.65,
+                              ),
+                          itemBuilder: (context, index) {
+                            return BookCard(book: books[index]);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                ),
+              ],
+            );
+          }
 
-                  GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.65,
-                    children: [
-                      BookCard(
-                        title: "The Hobbit",
-                        author: "J. R. R. Tolkien",
-                        imagePath: AppImages.hobbit,
-                      ),
-                      BookCard(
-                        title: "Catching Fire",
-                        author: "Suzanne Collins",
-                        imagePath: AppImages.catchingFire,
-                      ),
-                      BookCard(
-                        title: "Bridge of Clay",
-                        author: "Markus Zusak",
-                        imagePath: AppImages.bridgeClay,
-                      ),
-                      BookCard(
-                        title: "The Borgias",
-                        author: "Christopher Hibbert",
-                        imagePath: AppImages.borgias,
-                      ),
-                      BookCard(
-                        title: "A Man Called Ove",
-                        author: "Fredrik Backman",
-                        imagePath: AppImages.ove,
-                      ),
-                      BookCard(
-                        title: "A Game of Thrones",
-                        author: "George R. R. Martin",
-                        imagePath: AppImages.gameThrones,
-                      ),
-                      BookCard(
-                        title: "The Wold is Not Enough",
-                        author: "Anthony Horowitz",
-                        imagePath: AppImages.world,
-                      ),
-                      BookCard(
-                        title: "The Silmarillion",
-                        author: "J. R. R. Tolkien",
-                        imagePath: AppImages.silmarillion,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          return const SizedBox.shrink();
+        },
       ),
     );
+  }
+
+  String _getGenreImage(String genre) {
+    switch (genre.toLowerCase()) {
+      case "fantasy":
+        return AppImages.fantasy;
+      case "fiction":
+        return AppImages.fiction;
+      case "romance":
+        return AppImages.romance;
+      case "horror":
+        return AppImages.horror;
+      case "crime":
+        return AppImages.crime;
+      case "youngadult":
+        return AppImages.youngAdult;
+      default:
+        return AppImages.fiction;
+    }
   }
 }

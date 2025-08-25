@@ -1,13 +1,17 @@
-import 'package:booky_library/core/constants/app_images.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_images.dart';
 import '../../../core/widgets/custom_drawer.dart';
 import '../../../core/widgets/curved_appbar.dart';
+import '../../../core/widgets/button_effect.dart';
+import '../logic/cubit/book_cubit.dart';
+import '../logic/cubit/book_state.dart';
+import '../logic/cubit/fav_cubit.dart';
 import '../widgets/book_card.dart';
 import '../widgets/category_card.dart';
 import 'category_screen.dart';
-import 'my_books.dart';
-import '../../../core/widgets/button_effect.dart';
+import 'my_fav.dart';
 
 class HomeScreen extends StatelessWidget {
   final String username;
@@ -20,13 +24,14 @@ class HomeScreen extends StatelessWidget {
       drawer: CustomDrawer(username: username),
       body: CustomScrollView(
         slivers: [
+          // Recently Added Section
           CurvedAppBar(
             title: "Booky",
             overlayChild: Column(
               children: [
                 const SizedBox(height: 120),
                 const Text(
-                  "Recently added",
+                  "Recently Added",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -34,39 +39,41 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.30,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
-                      Expanded(
-                        child: BookCard(
-                          title: "The Lost Child",
-                          author: "Patricia Gibney",
-                          imagePath: AppImages.lostChild,
-                          lift: true,
-                          textColor: Colors.white,
+                BlocBuilder<BookCubit, BookState>(
+                  builder: (context, state) {
+                    if (state is BookLoaded) {
+                      final recentBooks = state.books.take(3).toList();
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.30,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(recentBooks.length, (index) {
+                            final book = recentBooks[index];
+                            return Expanded(
+                              child: BookCard(
+                                book: book,
+                                textColor: Colors.white,
+                                lift: index == 0 || index == 2,
+                              ),
+                            );
+                          }),
                         ),
-                      ),
-                      Expanded(
-                        child: BookCard(
-                          title: "A Spark of Light",
-                          author: "Jodi Picoult",
-                          imagePath: AppImages.spark,
-                          textColor: Colors.white,
+                      );
+                    }
+                    if (state is BookLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
                         ),
+                      );
+                    }
+                    return const Center(
+                      child: Text(
+                        "No recent books",
+                        style: TextStyle(color: Colors.white),
                       ),
-                      Expanded(
-                        child: BookCard(
-                          title: "The Warehouse",
-                          author: "Rob Hart",
-                          imagePath: AppImages.warehouse,
-                          lift: true,
-                          textColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -77,63 +84,75 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // My Favourites Section
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        buttonEffectRoute(const MyBooks()),
-                      );
+                      Navigator.push(context, buttonEffectRoute(const MyFav()));
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        "My books (4)",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
+                    child: BlocBuilder<FavCubit, List>(
+                      builder: (context, favBooks) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            "My Favourites (${favBooks.length})",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   SizedBox(
                     height: 200,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        BookCard(
-                          title: "The Hobbit",
-                          author: "J. R. R. Tolkien",
-                          imagePath: AppImages.hobbit,
-                        ),
-                        BookCard(
-                          title: "Catching Fire",
-                          author: "Suzanne Collins",
-                          imagePath: AppImages.catchingFire,
-                        ),
-                        BookCard(
-                          title: "A Man Called Ove",
-                          author: "Fredrik Backman",
-                          imagePath: AppImages.ove,
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MyBooks(),
-                              ),
-                            );
+                    child: BlocBuilder<FavCubit, List>(
+                      builder: (context, favBooks) {
+                        if (favBooks.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "No favourites yet",
+                              style: TextStyle(color: AppColors.primary),
+                            ),
+                          );
+                        }
+
+                        final limitedBooks = favBooks.take(4).toList();
+
+                        return ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount:
+                              limitedBooks.length +
+                              (favBooks.length > 4 ? 1 : 0),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            if (index < limitedBooks.length) {
+                              return BookCard(book: limitedBooks[index]);
+                            } else {
+                              return TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    buttonEffectRoute(const MyFav()),
+                                  );
+                                },
+                                child: const Text(
+                                  "View All",
+                                  style: TextStyle(color: AppColors.primary),
+                                ),
+                              );
+                            }
                           },
-                          child: const Text(
-                            "View All",
-                            style: TextStyle(color: AppColors.primary),
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
+
                   const SizedBox(height: 64),
+
+                  // Categories Section
                   const Text(
                     "Categories",
                     style: TextStyle(
@@ -156,29 +175,71 @@ class HomeScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            buttonEffectRoute(const CategoryScreen()),
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "Fantasy"),
+                            ),
                           );
                         },
                       ),
-                      const CategoryCard(
+                      CategoryCard(
                         title: "Fiction",
                         imagePath: AppImages.fiction,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "Fiction"),
+                            ),
+                          );
+                        },
                       ),
-                      const CategoryCard(
+                      CategoryCard(
                         title: "Crime",
                         imagePath: AppImages.crime,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "Crime"),
+                            ),
+                          );
+                        },
                       ),
-                      const CategoryCard(
+                      CategoryCard(
                         title: "Young Adult",
                         imagePath: AppImages.youngAdult,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "YoungAdult"),
+                            ),
+                          );
+                        },
                       ),
-                      const CategoryCard(
+                      CategoryCard(
                         title: "Horror",
                         imagePath: AppImages.horror,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "Horror"),
+                            ),
+                          );
+                        },
                       ),
-                      const CategoryCard(
+                      CategoryCard(
                         title: "Romance",
                         imagePath: AppImages.romance,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            buttonEffectRoute(
+                              const CategoryScreen(genre: "Romance"),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
