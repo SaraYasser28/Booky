@@ -1,13 +1,11 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import '../models/book_model.dart';
 
 class BookService {
   static const String baseUrl = "https://www.googleapis.com/books/v1/volumes";
-  final Dio _dio = Dio();
 
-  // Search books (Google Books API)
+  // Search books
   Future<List<BookModel>> fetchAllBooks({String? query}) async {
     final response = await http.get(Uri.parse('$baseUrl?q=$query'));
 
@@ -21,17 +19,23 @@ class BookService {
   }
 
   // Books by genre
-  Future<List<BookModel>> fetchBooksByGenre(String genre) async {
-    try {
-      final response = await _dio.get(
-        baseUrl,
-        queryParameters: {"q": "subject:$genre", "maxResults": 30},
-      );
+  Future<List<BookModel>> fetchBooksByGenre(
+    String genre, {
+    int maxResults = 40,
+    int startIndex = 0,
+  }) async {
+    final encodedGenre = Uri.encodeComponent(genre);
+    final url =
+        '$baseUrl?q=subject:$encodedGenre&maxResults=$maxResults&startIndex=$startIndex';
 
-      final items = response.data['items'] as List? ?? [];
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List items = data['items'] ?? [];
       return items.map((e) => BookModel.fromJson(e)).toList();
-    } catch (e) {
-      throw Exception("Failed to fetch books: $e");
+    } else {
+      throw Exception("Failed to load books for genre: $genre");
     }
   }
 }

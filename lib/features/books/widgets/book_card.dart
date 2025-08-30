@@ -67,7 +67,10 @@ class BookCard extends StatelessWidget {
                           size: 22,
                         ),
                         onPressed: () {
-                          context.read<FavCubit>().toggleFavorite(book);
+                          context.read<FavCubit>().toggleFavorite(
+                            context,
+                            book,
+                          );
                         },
                       );
                     },
@@ -77,7 +80,7 @@ class BookCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              limitWords(book.title, 4),
+              limitWords(book.title, 3),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -87,7 +90,7 @@ class BookCard extends StatelessWidget {
               ),
             ),
             Text(
-              limitWords(book.author, 3),
+              limitWords(book.author, 2),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: textColor, fontSize: 11),

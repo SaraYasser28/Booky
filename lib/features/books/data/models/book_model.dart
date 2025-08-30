@@ -43,7 +43,6 @@ class BookModel {
     this.publishedDate = '',
   });
 
-  /// Factory for Google Books API JSON
   factory BookModel.fromJson(Map<String, dynamic> json) {
     final volumeInfo = json['volumeInfo'] ?? {};
 

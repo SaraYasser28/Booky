@@ -130,18 +130,26 @@ class HomeScreen extends StatelessWidget {
                         return ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
-                            ...limitedBooks.map((book) => BookCard(book: book)),
+                            ...limitedBooks.map(
+                              (book) => Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: BookCard(book: book),
+                              ),
+                            ),
                             if (favBooks.length > 4)
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    buttonEffectRoute(const MyFav()),
-                                  );
-                                },
-                                child: const Text(
-                                  "View All",
-                                  style: TextStyle(color: AppColors.primary),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      buttonEffectRoute(const MyFav()),
+                                    );
+                                  },
+                                  child: const Text(
+                                    "View All",
+                                    style: TextStyle(color: AppColors.primary),
+                                  ),
                                 ),
                               ),
                           ],
@@ -181,7 +189,7 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             buttonEffectRoute(
-                              CategoryScreen(genre: category.title),
+                              CategoryScreen(genre: category.apiQuery),
                             ),
                           );
                         },

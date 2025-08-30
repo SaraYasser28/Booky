@@ -22,19 +22,7 @@ class BookRepository {
   }
 
   // Local Hive favorites
-  Future<void> addFavorite(BookModel book) async {
-    await _favBox.put(book.id, book);
-  }
-
-  Future<void> removeFavorite(BookModel book) async {
-    await _favBox.delete(book.id);
-  }
-
   List<BookModel> getFavoriteBooks() {
     return _favBox.values.toList();
-  }
-
-  bool isFavorite(BookModel book) {
-    return _favBox.containsKey(book.id);
   }
 }

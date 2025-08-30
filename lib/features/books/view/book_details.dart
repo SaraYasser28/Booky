@@ -120,11 +120,11 @@ class BookDetails extends StatelessWidget {
                 // Add to favourites button
                 BlocBuilder<FavCubit, List<BookModel>>(
                   builder: (context, favBooks) {
-                    final isFav = context.read<FavCubit>().isFavorite(book);
+                    final favCubit = context.read<FavCubit>();
+                    final isFav = favCubit.isFavorite(book);
+
                     return ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<FavCubit>().toggleFavorite(book);
-                      },
+                      onPressed: () => favCubit.toggleFavorite(context, book),
                       icon: Icon(
                         isFav ? Icons.favorite : Icons.favorite_border,
                         color: Colors.white,
