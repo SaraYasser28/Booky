@@ -1,179 +1,45 @@
-import '../../../../core/constants/app_images.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/book_model.dart';
 
 class BookService {
-  final List<BookModel> books = [
-    // --- Fantasy ---
-    BookModel(
-      id: 1,
-      title: "The Hobbit",
-      author: "J. R. R. Tolkien",
-      imagePath: AppImages.hobbit,
-      genre: "Fantasy",
-    ),
-    BookModel(
-      id: 2,
-      title: "Catching Fire",
-      author: "Suzanne Collins",
-      imagePath: AppImages.catchingFire,
-      genre: "Fantasy",
-    ),
-    BookModel(
-      id: 3,
-      title: "Bridge of Clay",
-      author: "Markus Zusak",
-      imagePath: AppImages.bridgeClay,
-      genre: "Fantasy",
-    ),
-    BookModel(
-      id: 4,
-      title: "The Borgias",
-      author: "Christopher Hibbert",
-      imagePath: AppImages.borgias,
-      genre: "Fantasy",
-    ),
-    BookModel(
-      id: 5,
-      title: "A Game of Thrones",
-      author: "George R. R. Martin",
-      imagePath: AppImages.gameThrones,
-      genre: "Fantasy",
-    ),
-    BookModel(
-      id: 6,
-      title: "The Silmarillion",
-      author: "J. R. R. Tolkien",
-      imagePath: AppImages.silmarillion,
-      genre: "Fantasy",
-    ),
+  static const String baseUrl = "https://openlibrary.org";
 
-    // --- Fiction ---
-    BookModel(
-      id: 7,
-      title: "A Man Called Ove",
-      author: "Fredrik Backman",
-      imagePath: AppImages.ove,
-      genre: "Fiction",
-    ),
-    BookModel(
-      id: 8,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      imagePath: AppImages.mockingbird,
-      genre: "Fiction",
-    ),
-    BookModel(
-      id: 9,
-      title: "1984",
-      author: "George Orwell",
-      imagePath: AppImages.nineteenEightyFour,
-      genre: "Fiction",
-    ),
-    BookModel(
-      id: 10,
-      title: "Pride and Prejudice",
-      author: "Jane Austen",
-      imagePath: AppImages.pridePrejudice,
-      genre: "Fiction",
-    ),
+  // Search books
+  Future<List<BookModel>> fetchAllBooks({String query = "programming"}) async {
+    final response = await http.get(Uri.parse('$baseUrl/search.json?q=$query'));
 
-    // --- Young Adult ---
-    BookModel(
-      id: 11,
-      title: "The World is Not Enough",
-      author: "Anthony Horowitz",
-      imagePath: AppImages.world,
-      genre: "YoungAdult",
-    ),
-    BookModel(
-      id: 12,
-      title: "The Hunger Games",
-      author: "Suzanne Collins",
-      imagePath: AppImages.hungerGames,
-      genre: "YoungAdult",
-    ),
-    BookModel(
-      id: 13,
-      title: "Divergent",
-      author: "Veronica Roth",
-      imagePath: AppImages.divergent,
-      genre: "YoungAdult",
-    ),
-    BookModel(
-      id: 14,
-      title: "The Maze Runner",
-      author: "James Dashner",
-      imagePath: AppImages.mazeRunner,
-      genre: "YoungAdult",
-    ),
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> docs = data['docs'] ?? [];
+      return docs.map((e) => BookModel.fromJson(e)).toList();
+    } else {
+      throw Exception("Failed to load books");
+    }
+  }
 
-    // --- Romance ---
-    BookModel(
-      id: 15,
-      title: "The Notebook",
-      author: "Nicholas Sparks",
-      imagePath: AppImages.notebook,
-      genre: "Romance",
-    ),
-    BookModel(
-      id: 16,
-      title: "Me Before You",
-      author: "Jojo Moyes",
-      imagePath: AppImages.meBeforeYou,
-      genre: "Romance",
-    ),
-    BookModel(
-      id: 17,
-      title: "Twilight",
-      author: "Stephenie Meyer",
-      imagePath: AppImages.twilight,
-      genre: "Romance",
-    ),
+  // Books by genre
+  Future<List<BookModel>> fetchBooksByGenre(String genre) async {
+    final response = await http.get(Uri.parse('$baseUrl/subjects/$genre.json'));
 
-    // --- Horror ---
-    BookModel(
-      id: 18,
-      title: "It",
-      author: "Stephen King",
-      imagePath: AppImages.it,
-      genre: "Horror",
-    ),
-    BookModel(
-      id: 19,
-      title: "The Shining",
-      author: "Stephen King",
-      imagePath: AppImages.shining,
-      genre: "Horror",
-    ),
-    BookModel(
-      id: 20,
-      title: "Dracula",
-      author: "Bram Stoker",
-      imagePath: AppImages.dracula,
-      genre: "Horror",
-    ),
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> works = data['works'] ?? [];
+      return works.map((e) => BookModel.fromJson(e)).toList();
+    } else {
+      throw Exception("Failed to load books by genre");
+    }
+  }
 
-    // --- Crime ---
-    BookModel(
-      id: 21,
-      title: "The Girl with the Dragon Tattoo",
-      author: "Stieg Larsson",
-      imagePath: AppImages.girlDragon,
-      genre: "Crime",
-    ),
-    BookModel(
-      id: 22,
-      title: "Gone Girl",
-      author: "Gillian Flynn",
-      imagePath: AppImages.goneGirl,
-      genre: "Crime",
-    ),
-    BookModel(
-      id: 23,
-      title: "In Cold Blood",
-      author: "Truman Capote",
-      imagePath: AppImages.coldBlood,
-      genre: "Crime",
-    ),
-  ];
+  // Get single book details
+  Future<BookModel> fetchBookDetails(String workKey) async {
+    final response = await http.get(Uri.parse('$baseUrl$workKey.json'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return BookModel.fromJson(data);
+    } else {
+      throw Exception("Failed to load book details");
+    }
+  }
 }

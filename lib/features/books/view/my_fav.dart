@@ -1,7 +1,8 @@
-import 'package:booky_library/core/widgets/custom_drawer.dart';
-import 'package:booky_library/core/widgets/regular_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/widgets/custom_drawer.dart';
+import '../../../core/widgets/regular_appbar.dart';
+import '../../search/view/search_screen.dart';
 import '../data/models/book_model.dart';
 import '../logic/cubit/fav_cubit.dart';
 import '../widgets/book_card.dart';
@@ -24,7 +25,12 @@ class MyFav extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              );
+            },
           ),
         ],
       ),

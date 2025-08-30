@@ -47,16 +47,17 @@ class HomeScreen extends StatelessWidget {
                         height: MediaQuery.of(context).size.height * 0.30,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: List.generate(recentBooks.length, (index) {
-                            final book = recentBooks[index];
-                            return Expanded(
-                              child: BookCard(
-                                book: book,
-                                textColor: Colors.white,
-                                lift: index == 0 || index == 2,
-                              ),
-                            );
-                          }),
+                          children: recentBooks
+                              .map(
+                                (book) => Expanded(
+                                  child: BookCard(
+                                    book: book,
+                                    textColor: Colors.white,
+                                    lift: true,
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                       );
                     }
@@ -120,18 +121,12 @@ class HomeScreen extends StatelessWidget {
 
                         final limitedBooks = favBooks.take(4).toList();
 
-                        return ListView.separated(
+                        return ListView(
                           scrollDirection: Axis.horizontal,
-                          itemCount:
-                              limitedBooks.length +
-                              (favBooks.length > 4 ? 1 : 0),
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            if (index < limitedBooks.length) {
-                              return BookCard(book: limitedBooks[index]);
-                            } else {
-                              return TextButton(
+                          children: [
+                            ...limitedBooks.map((book) => BookCard(book: book)),
+                            if (favBooks.length > 4)
+                              TextButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -142,9 +137,8 @@ class HomeScreen extends StatelessWidget {
                                   "View All",
                                   style: TextStyle(color: AppColors.primary),
                                 ),
-                              );
-                            }
-                          },
+                              ),
+                          ],
                         );
                       },
                     ),
@@ -212,7 +206,7 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             buttonEffectRoute(
-                              const CategoryScreen(genre: "YoungAdult"),
+                              const CategoryScreen(genre: "Young Adult"),
                             ),
                           );
                         },

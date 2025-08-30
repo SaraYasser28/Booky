@@ -1,46 +1,26 @@
-import 'dart:async';
+import 'package:hive/hive.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-  final List<UserModel> _users = [];
+  static const String userBoxName = 'userBox';
 
-  // Simulate login API
-  Future<UserModel> login(String username, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    try {
-      final user = _users.firstWhere(
-        (u) => u.username == username && u.token == password,
-        orElse: () => throw Exception("Invalid username or password"),
-      );
-      return user;
-    } catch (e) {
-      throw Exception("Invalid username or password");
-    }
+  Future<void> addUser(UserModel user) async {
+    final box = await Hive.openBox<UserModel>(userBoxName);
+    await box.put(user.username, user);
   }
 
-  // Simulate signup API
-  Future<UserModel> signup(
-    String email,
-    String username,
-    String password,
-  ) async {
-    await Future.delayed(const Duration(seconds: 1));
-    final exists = _users.any(
-      (u) => u.username == username || u.email == email,
-    );
-    if (exists) {
-      throw Exception("User already exists");
-    }
+  Future<UserModel?> getUser(String username) async {
+    final box = await Hive.openBox<UserModel>(userBoxName);
+    return box.get(username);
+  }
 
-    final newUser = UserModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      username: username,
-      email: email,
-      token: password, // test
-    );
+  Future<bool> userExists(String username) async {
+    final box = await Hive.openBox<UserModel>(userBoxName);
+    return box.containsKey(username);
+  }
 
-    _users.add(newUser);
-    return newUser;
+  Future<List<UserModel>> getAllUsers() async {
+    final box = await Hive.openBox<UserModel>(userBoxName);
+    return box.values.toList();
   }
 }

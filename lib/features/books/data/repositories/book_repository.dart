@@ -1,33 +1,44 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/book_model.dart';
 import '../services/book_service.dart';
 
 class BookRepository {
   final BookService _bookService;
+  final Box<BookModel> _favBox;
 
-  BookRepository(this._bookService);
+  BookRepository(this._bookService, this._favBox);
 
-  // Fetch all books
-  Future<List<BookModel>> fetchAllBooks() async {
-    await Future.delayed(const Duration(seconds: 2));
-    return _bookService.books;
+  // Remote API
+  Future<List<BookModel>> fetchAllBooks(String query) async {
+    return await _bookService.fetchAllBooks(query: query);
   }
 
-  // Fetch books by genre
   Future<List<BookModel>> fetchBooksByGenre(String genre) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    String normalize(String s) => s.replaceAll(" ", "").toLowerCase();
-
-    return _bookService.books
-        .where((book) => normalize(book.genre) == normalize(genre))
-        .toList();
+    return await _bookService.fetchBooksByGenre(genre);
   }
 
-  // Fetch favorite books
-  Future<List<BookModel>> fetchFavoriteBooks(List<int> favoriteIds) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    return _bookService.books
-        .where((book) => favoriteIds.contains(book.id))
-        .toList();
+  Future<BookModel> fetchBookDetails(String workKey) async {
+    return await _bookService.fetchBookDetails(workKey);
+  }
+
+  Future<List<BookModel>> searchBooks(String query) async {
+    return await _bookService.fetchAllBooks(query: query);
+  }
+
+  // Local Hive favorites
+  Future<void> addFavorite(BookModel book) async {
+    await _favBox.put(book.id, book);
+  }
+
+  Future<void> removeFavorite(BookModel book) async {
+    await _favBox.delete(book.id);
+  }
+
+  List<BookModel> getFavoriteBooks() {
+    return _favBox.values.toList();
+  }
+
+  bool isFavorite(BookModel book) {
+    return _favBox.containsKey(book.id);
   }
 }

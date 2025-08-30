@@ -7,7 +7,7 @@ import '../../../core/widgets/regular_appbar.dart';
 import '../../books/view/home_screen.dart';
 import '../logic/cubit/auth_cubit.dart';
 import '../logic/cubit/auth_state.dart';
-import '../logic/auth_controller.dart'; // 👈 import it
+import '../logic/auth_controller.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

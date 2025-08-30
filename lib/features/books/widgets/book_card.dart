@@ -1,6 +1,6 @@
-import 'package:booky_library/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/constants/app_colors.dart';
 import '../data/models/book_model.dart';
 import '../logic/cubit/fav_cubit.dart';
 import '../view/book_details.dart';
@@ -22,17 +22,7 @@ class BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          buttonEffectRoute(
-            BookDetails(
-              title: book.title,
-              author: book.author,
-              imagePath: book.imagePath,
-              genre: book.genre,
-            ),
-          ),
-        );
+        Navigator.push(context, buttonEffectRoute(BookDetails(book: book)));
       },
       child: Transform.translate(
         offset: lift ? const Offset(0, -20) : Offset.zero,
@@ -43,11 +33,25 @@ class BookCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    book.imagePath,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
+                  child: book.imagePath.startsWith("http")
+                      ? Image.network(
+                          book.imagePath,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            height: 150,
+                            width: double.infinity,
+                            color: Colors.grey.shade300,
+                            child: const Icon(Icons.broken_image, size: 40),
+                          ),
+                        )
+                      : Image.asset(
+                          book.imagePath,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 Positioned(
                   top: 2,

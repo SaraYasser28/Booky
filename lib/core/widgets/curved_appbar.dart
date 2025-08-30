@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
+import '../../features/search/view/search_screen.dart';
 import '../constants/app_colors.dart';
 
 class CurvedAppBar extends StatelessWidget {
@@ -53,7 +54,12 @@ class CurvedAppBar extends StatelessWidget {
           [
             IconButton(
               icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              },
             ),
           ],
       flexibleSpace: FlexibleSpaceBar(

@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_drawer.dart';
 import '../../../core/widgets/regular_appbar.dart';
+import '../../search/view/search_screen.dart';
+import '../data/models/book_model.dart';
+import '../logic/cubit/fav_cubit.dart';
 
 class BookDetails extends StatelessWidget {
-  final String title;
-  final String author;
-  final String imagePath;
-  final String genre;
-  final double rating;
-  final bool available;
+  final BookModel book;
 
-  const BookDetails({
-    super.key,
-    required this.title,
-    required this.author,
-    required this.imagePath,
-    required this.genre,
-    this.rating = 4.0,
-    this.available = true,
-  });
+  const BookDetails({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       drawer: CustomDrawer(username: ''),
       appBar: RegularAppBar(
         title: "Booky",
@@ -37,114 +28,164 @@ class BookDetails extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              );
+            },
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Cover Image
             Container(
+              margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.shade400,
-                    blurRadius: 6,
-                    offset: const Offset(2, 4),
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(imagePath, height: 170),
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  book.imagePath,
+                  height: 260,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
 
-            // Title & Author
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                color: AppColors.secondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              author,
-              style: const TextStyle(color: AppColors.secondary, fontSize: 14),
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Rating: "),
-                ...List.generate(
-                  5,
-                  (index) => Icon(
-                    index < rating.round() ? Icons.star : Icons.star_border,
-                    color: AppColors.primary,
-                    size: 18,
+            // Book Info Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    blurRadius: 8,
+                    offset: const Offset(2, 4),
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            // Genre
-            Text(
-              "Genre: $genre",
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
-            ),
-
-            const SizedBox(height: 6),
-
-            // Availability
-            Text(
-              available ? "Available" : "Unavailable",
-              style: TextStyle(
-                color: available ? AppColors.primary : Colors.red,
-                fontWeight: FontWeight.bold,
+                ],
               ),
-            ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    book.title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "by ${book.author}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
+                  // Rating stars
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      5,
+                      (index) => Icon(
+                        index < book.rating.round()
+                            ? Icons.star
+                            : Icons.star_border,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
 
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.activeButton,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 14,
-                ),
-              ),
-              child: const Text(
-                "Add to Favourites",
-                style: TextStyle(fontSize: 17, color: Colors.white),
+                  // Genre & Availability
+                  Text(
+                    "Genre: ${book.genre}",
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  Text(
+                    book.available ? "Available" : "Unavailable",
+                    style: TextStyle(
+                      color: book.available
+                          ? AppColors.primary
+                          : Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Add to favourites button
+                  BlocBuilder<FavCubit, List<BookModel>>(
+                    builder: (context, favBooks) {
+                      final isFav = context.read<FavCubit>().isFavorite(book);
+                      return ElevatedButton.icon(
+                        onPressed: () {
+                          context.read<FavCubit>().toggleFavorite(book);
+                        },
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          isFav
+                              ? "Remove from Favourites"
+                              : "Add to Favourites",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.activeButton,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 14,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // Description
-            const Text(
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-              "Mauris vel imperdiet justo. Fusce congue sit amet orci et "
-              "facilisis. Sed molestie tortor sed mi tempor, at tempor dui "
-              "tincidunt. Donec posuere scelerisque odio...",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.secondary),
+            // Description Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Text(
+                book.notes,
+                textAlign: TextAlign.justify,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: AppColors.secondary,
+                ),
+              ),
             ),
+
+            const SizedBox(height: 40),
           ],
         ),
       ),

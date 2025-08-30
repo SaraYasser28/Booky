@@ -7,18 +7,16 @@ class BookCubit extends Cubit<BookState> {
 
   BookCubit(this.repository) : super(BookInitial());
 
-  /// Fetch all books
-  Future<void> fetchAllBooks() async {
+  Future<void> fetchAllBooks(String query) async {
     emit(BookLoading());
     try {
-      final books = await repository.fetchAllBooks();
+      final books = await repository.fetchAllBooks(query);
       emit(BookLoaded(books));
     } catch (e) {
       emit(BookError(e.toString()));
     }
   }
 
-  /// Fetch books by genre
   Future<void> fetchBooksByGenre(String genre) async {
     emit(BookLoading());
     try {
@@ -29,11 +27,10 @@ class BookCubit extends Cubit<BookState> {
     }
   }
 
-  /// Fetch favorite books
-  Future<void> fetchFavoriteBooks(List<int> favoriteIds) async {
+  Future<void> fetchFavoriteBooks() async {
     emit(BookLoading());
     try {
-      final books = await repository.fetchFavoriteBooks(favoriteIds);
+      final books = repository.getFavoriteBooks();
       emit(BookLoaded(books));
     } catch (e) {
       emit(BookError(e.toString()));
