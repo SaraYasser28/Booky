@@ -1,68 +1,96 @@
 # Booky App
 
-Booky is a modern *Flutter-based library application* designed to provide an elegant and interactive reading experience. The app features *user authentication, book browsing, favorites management, and detailed book views*, all wrapped in a clean and intuitive UI.
+**Booky** is a modern **Flutter-based library application** designed to provide an elegant and interactive reading experience.
+The app features **user authentication, book browsing, favorites management, search, and detailed book views**, all wrapped in a **clean and intuitive UI**.
 
-## Features
+---
 
-* *User Authentication*
+##  Features
 
-  * Register and log in securely.
-  * Form validation with meaningful error messages.
+### User Authentication
 
-* *Home & Categories*
+* Register and log in securely.
+* Form validation with meaningful error messages.
 
-  * Browse books by category.
-  * Explore featured and popular titles.
+### Home & Categories
 
-* *Book Details*
+* Browse books by category.
+* Explore featured and popular titles.
 
-  * View detailed information about books.
-  * Add/remove books from favorites with a heart toggle.
+### Book Details
 
-* *Modern UI/UX*
+* View detailed information about each book.
+* Add/remove books from favorites with a heart toggle.
 
-  * Clean typography, responsive layout.
-  * Smooth navigation with animations.
+### Favorites
+
+* Persistent favorites storage using **Hive**.
+* Manage and view your saved books easily.
+
+### Search
+
+* Search across books by title or author.
+* Powered by **SearchCubit** for state management.
+
+### Modern UI/UX
+
+* Clean typography and responsive layout.
+* Smooth navigation with animations.
+* Custom reusable widgets for app bars, buttons, and book cards.
+
+---
 
 ## Tech Stack
 
-* *Framework:* Flutter
-* *Language:* Dart
-* *UI:* Material Design + Custom Widgets
-* *State Management:* setState (basic) – scalable to Provider or Riverpod
-* *Other:*
+* **Framework:** Flutter
+* **Language:** Dart
+* **UI:** Material Design + Custom Widgets
+* **State Management:** Flutter Bloc (Cubit)
+* **Local Storage:** Hive (for favorites & user data)
+* **API**: Google Books API
 
-  * Form validation logic in AuthController
-  * Custom widgets for buttons, cards, and app bars
+---
 
 ## Project Structure
 
-
 lib/
-├── auth/
-│   ├── view/          # SignIn & SignUp screens
-│
-├── books/
-│   ├── view/          # Book details, home screen, categories
-│   ├── widgets/       # BookCard, custom UI components
-│
 ├── core/
-│   ├── constants/     # App colors, iImage Paths
-│   ├── widgets/       # Shared UI components (button_effect, appbar, etc.)
+│   ├── constants/     # App colors, image paths
+│   ├── widgets/       # Shared UI components (buttons, app bars, etc.)
 │
-└── main.dart
+├── features/
+│   ├── auth/
+│   │   ├── data/      # Models, repositories, services
+│   │   ├── logic/     # Cubits for auth
+│   │   ├── view/      # SignIn & SignUp screens
+│   │
+│   ├── books/
+│   │   ├── data/      # Models, repositories, services
+│   │   ├── logic/     # Cubits for books & favorites
+│   │   ├── view/      # Home, categories, book details
+│   │   ├── widgets/   # BookCard, etc.
+│   │
+│   ├── search/
+│   │   ├── logic/     # SearchCubit
+│   │   ├── view/      # Search screen
+│
+├── main.dart
 
+
+---
 
 ## Screenshots
 
-// To be added
+Coming soon...
 
+---
 
-## To Be Made
-* [ ] Phase 2 | Adding Functionality to the UI
-* [ ] Add search functionality
-* [ ] Implement persistent storage for favorites
+## Roadmap
+
+* [x] Phase 1 | Core UI setup (auth, books, favorites)
+* [x] Phase 2 | Favorites and book cubit
+* [x] Phase 3 | Search Functionality, Hive local DB and Google Books API integration
 * [ ] Enhance book categorization with filters and sorting
-* [ ] Connect to a backend (Firebase or API)
 * [ ] Dark mode support
 
+---
