@@ -75,6 +75,8 @@ lib/
 │   │   ├── logic/     # SearchCubit
 │   │   ├── view/      # Search screen
 │
+├── features/splash/   # Splash screen
+|
 ├── main.dart
 ```
 
@@ -95,4 +97,5 @@ Coming soon...
 * [ ] Dark mode support
 
 ---
+
 
