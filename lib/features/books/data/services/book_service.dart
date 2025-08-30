@@ -1,18 +1,20 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import '../models/book_model.dart';
 
 class BookService {
-  static const String baseUrl = "https://openlibrary.org";
+  static const String baseUrl = "https://www.googleapis.com/books/v1/volumes";
+  final Dio _dio = Dio();
 
-  // Search books
-  Future<List<BookModel>> fetchAllBooks({String query = "programming"}) async {
-    final response = await http.get(Uri.parse('$baseUrl/search.json?q=$query'));
+  // Search books (Google Books API)
+  Future<List<BookModel>> fetchAllBooks({String? query}) async {
+    final response = await http.get(Uri.parse('$baseUrl?q=$query'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> docs = data['docs'] ?? [];
-      return docs.map((e) => BookModel.fromJson(e)).toList();
+      final List<dynamic> items = data['items'] ?? [];
+      return items.map((e) => BookModel.fromJson(e)).toList();
     } else {
       throw Exception("Failed to load books");
     }
@@ -20,26 +22,16 @@ class BookService {
 
   // Books by genre
   Future<List<BookModel>> fetchBooksByGenre(String genre) async {
-    final response = await http.get(Uri.parse('$baseUrl/subjects/$genre.json'));
+    try {
+      final response = await _dio.get(
+        baseUrl,
+        queryParameters: {"q": "subject:$genre", "maxResults": 30},
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> works = data['works'] ?? [];
-      return works.map((e) => BookModel.fromJson(e)).toList();
-    } else {
-      throw Exception("Failed to load books by genre");
-    }
-  }
-
-  // Get single book details
-  Future<BookModel> fetchBookDetails(String workKey) async {
-    final response = await http.get(Uri.parse('$baseUrl$workKey.json'));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return BookModel.fromJson(data);
-    } else {
-      throw Exception("Failed to load book details");
+      final items = response.data['items'] as List? ?? [];
+      return items.map((e) => BookModel.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception("Failed to fetch books: $e");
     }
   }
 }

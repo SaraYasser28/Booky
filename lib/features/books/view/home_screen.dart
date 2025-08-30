@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_images.dart';
+import '../../../core/constants/category_list.dart';
 import '../../../core/widgets/custom_drawer.dart';
 import '../../../core/widgets/curved_appbar.dart';
 import '../../../core/widgets/button_effect.dart';
+import '../data/models/book_model.dart';
 import '../logic/cubit/book_cubit.dart';
 import '../logic/cubit/book_state.dart';
 import '../logic/cubit/fav_cubit.dart';
 import '../widgets/book_card.dart';
-import '../widgets/category_card.dart';
-import 'category_screen.dart';
+import '../../categories/widgets/category_card.dart';
+import '../../categories/view/category_screen.dart';
 import 'my_fav.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -42,22 +43,27 @@ class HomeScreen extends StatelessWidget {
                 BlocBuilder<BookCubit, BookState>(
                   builder: (context, state) {
                     if (state is BookLoaded) {
-                      final recentBooks = state.books.take(3).toList();
+                      final recentBooks = List<BookModel>.from(state.books)
+                        ..sort(
+                          (a, b) => b.publishedDate.compareTo(a.publishedDate),
+                        );
+                      final latestThree = recentBooks.take(3).toList();
+
                       return SizedBox(
                         height: MediaQuery.of(context).size.height * 0.30,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: recentBooks
-                              .map(
-                                (book) => Expanded(
-                                  child: BookCard(
-                                    book: book,
-                                    textColor: Colors.white,
-                                    lift: true,
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                          children: latestThree.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final book = entry.value;
+                            return Expanded(
+                              child: BookCard(
+                                book: book,
+                                textColor: Colors.white,
+                                lift: index == 0 || index == 2,
+                              ),
+                            );
+                          }).toList(),
                         ),
                       );
                     }
@@ -90,7 +96,7 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(context, buttonEffectRoute(const MyFav()));
                     },
-                    child: BlocBuilder<FavCubit, List>(
+                    child: BlocBuilder<FavCubit, List<BookModel>>(
                       builder: (context, favBooks) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 10),
@@ -156,86 +162,31 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  GridView.count(
+                  GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    children: [
-                      CategoryCard(
-                        title: "Fantasy",
-                        imagePath: AppImages.fantasy,
+                    itemCount: categories.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                        ),
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return CategoryCard(
+                        title: category.title,
+                        imagePath: category.imagePath,
                         onTap: () {
                           Navigator.push(
                             context,
                             buttonEffectRoute(
-                              const CategoryScreen(genre: "Fantasy"),
+                              CategoryScreen(genre: category.title),
                             ),
                           );
                         },
-                      ),
-                      CategoryCard(
-                        title: "Fiction",
-                        imagePath: AppImages.fiction,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            buttonEffectRoute(
-                              const CategoryScreen(genre: "Fiction"),
-                            ),
-                          );
-                        },
-                      ),
-                      CategoryCard(
-                        title: "Crime",
-                        imagePath: AppImages.crime,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            buttonEffectRoute(
-                              const CategoryScreen(genre: "Crime"),
-                            ),
-                          );
-                        },
-                      ),
-                      CategoryCard(
-                        title: "Young Adult",
-                        imagePath: AppImages.youngAdult,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            buttonEffectRoute(
-                              const CategoryScreen(genre: "Young Adult"),
-                            ),
-                          );
-                        },
-                      ),
-                      CategoryCard(
-                        title: "Horror",
-                        imagePath: AppImages.horror,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            buttonEffectRoute(
-                              const CategoryScreen(genre: "Horror"),
-                            ),
-                          );
-                        },
-                      ),
-                      CategoryCard(
-                        title: "Romance",
-                        imagePath: AppImages.romance,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            buttonEffectRoute(
-                              const CategoryScreen(genre: "Romance"),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ],
               ),

@@ -17,10 +17,6 @@ class BookRepository {
     return await _bookService.fetchBooksByGenre(genre);
   }
 
-  Future<BookModel> fetchBookDetails(String workKey) async {
-    return await _bookService.fetchBookDetails(workKey);
-  }
-
   Future<List<BookModel>> searchBooks(String query) async {
     return await _bookService.fetchAllBooks(query: query);
   }

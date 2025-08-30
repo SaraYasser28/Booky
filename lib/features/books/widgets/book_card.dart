@@ -37,11 +37,11 @@ class BookCard extends StatelessWidget {
                       ? Image.network(
                           book.imagePath,
                           height: 150,
-                          width: double.infinity,
+                          width: 100,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
                             height: 150,
-                            width: double.infinity,
+                            width: 100,
                             color: Colors.grey.shade300,
                             child: const Icon(Icons.broken_image, size: 40),
                           ),
@@ -49,7 +49,7 @@ class BookCard extends StatelessWidget {
                       : Image.asset(
                           book.imagePath,
                           height: 150,
-                          width: double.infinity,
+                          width: 100,
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -77,7 +77,7 @@ class BookCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              book.title,
+              limitWords(book.title, 4),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -87,7 +87,7 @@ class BookCard extends StatelessWidget {
               ),
             ),
             Text(
-              book.author,
+              limitWords(book.author, 3),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: textColor, fontSize: 11),
@@ -97,4 +97,10 @@ class BookCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String limitWords(String text, int wordLimit) {
+  final words = text.split(" ");
+  if (words.length <= wordLimit) return text;
+  return "${words.take(wordLimit).join(" ")}...";
 }

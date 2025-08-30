@@ -25,13 +25,14 @@ class BookModelAdapter extends TypeAdapter<BookModel> {
       rating: fields[5] as double,
       available: fields[6] as bool,
       notes: fields[7] as String,
+      publishedDate: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, BookModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class BookModelAdapter extends TypeAdapter<BookModel> {
       ..writeByte(6)
       ..write(obj.available)
       ..writeByte(7)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(8)
+      ..write(obj.publishedDate);
   }
 
   @override

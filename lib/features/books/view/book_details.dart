@@ -40,150 +40,145 @@ class BookDetails extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Cover Image
             Container(
+              width: 150,
+              height: 230,
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  book.imagePath,
-                  height: 260,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: book.imagePath.isNotEmpty
+                    ? Image.network(
+                        book.imagePath,
+                        height: 260,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                              Icons.book,
+                              size: 100,
+                              color: Colors.grey,
+                            ),
+                      )
+                    : const Icon(Icons.book, size: 100, color: Colors.grey),
               ),
             ),
 
-            // Book Info Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade300,
-                    blurRadius: 8,
-                    offset: const Offset(2, 4),
+            // Book Info
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  book.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: AppColors.secondary,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    book.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.secondary,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "by ${book.author}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "by ${book.author}",
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 12),
 
-                  // Rating stars
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      5,
-                      (index) => Icon(
-                        index < book.rating.round()
-                            ? Icons.star
-                            : Icons.star_border,
-                        color: AppColors.primary,
-                        size: 22,
+                // Rating stars
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (index) => Icon(
+                      index < book.rating.round()
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Genre & Availability
+                Text(
+                  "Genre: ${book.genre}",
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+                Text(
+                  book.available ? "Available" : "Unavailable",
+                  style: TextStyle(
+                    color: book.available
+                        ? AppColors.primary
+                        : Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Add to favourites button
+                BlocBuilder<FavCubit, List<BookModel>>(
+                  builder: (context, favBooks) {
+                    final isFav = context.read<FavCubit>().isFavorite(book);
+                    return ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<FavCubit>().toggleFavorite(book);
+                      },
+                      icon: Icon(
+                        isFav ? Icons.favorite : Icons.favorite_border,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Genre & Availability
-                  Text(
-                    "Genre: ${book.genre}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                  Text(
-                    book.available ? "Available" : "Unavailable",
-                    style: TextStyle(
-                      color: book.available
-                          ? AppColors.primary
-                          : Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Add to favourites button
-                  BlocBuilder<FavCubit, List<BookModel>>(
-                    builder: (context, favBooks) {
-                      final isFav = context.read<FavCubit>().isFavorite(book);
-                      return ElevatedButton.icon(
-                        onPressed: () {
-                          context.read<FavCubit>().toggleFavorite(book);
-                        },
-                        icon: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
+                      label: Text(
+                        isFav ? "Remove from Favourites" : "Add to Favourites",
+                        style: const TextStyle(
+                          fontSize: 16,
                           color: Colors.white,
                         ),
-                        label: Text(
-                          isFav
-                              ? "Remove from Favourites"
-                              : "Add to Favourites",
-                          style: const TextStyle(fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.activeButton,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.activeButton,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 14,
-                          ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 14,
                         ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
 
             // Description Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Text(
-                book.notes,
-                textAlign: TextAlign.justify,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: AppColors.secondary,
+            if (book.notes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Text(
+                  book.notes,
+                  textAlign: TextAlign.justify,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.secondary,
+                  ),
+                ),
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18),
+                child: Text(
+                  "No description available.",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
 
             const SizedBox(height: 40),
           ],

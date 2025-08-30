@@ -28,61 +28,50 @@ class BookModel {
   @HiveField(7)
   final String notes;
 
+  @HiveField(8)
+  final String publishedDate;
+
   BookModel({
     required this.id,
     required this.title,
     required this.author,
     required this.imagePath,
     required this.genre,
-    this.rating = 0.0,
+    this.rating = 1.0,
     this.available = true,
     this.notes = '',
+    this.publishedDate = '',
   });
 
+  /// Factory for Google Books API JSON
   factory BookModel.fromJson(Map<String, dynamic> json) {
-    final hasDocsFields =
-        json.containsKey('cover_i') || json.containsKey('author_name');
+    final volumeInfo = json['volumeInfo'] ?? {};
 
-    if (hasDocsFields) {
-      return BookModel(
-        id: json['key'] ?? '',
-        title: json['title'] ?? 'Unknown Title',
-        author: (json['author_name'] != null && json['author_name'].isNotEmpty)
-            ? json['author_name'][0]
-            : 'Unknown Author',
-        imagePath: (json['cover_i'] != null)
-            ? "https://covers.openlibrary.org/b/id/${json['cover_i']}-M.jpg"
-            : '',
-        genre: (json['subject'] != null && json['subject'].isNotEmpty)
-            ? json['subject'][0]
-            : 'Unknown Genre',
-        rating: (json['ratings_average'] != null)
-            ? (json['ratings_average'] as num).toDouble()
-            : 0.0,
-        available: true,
-        notes: json['notes'] ?? '',
-      );
-    } else {
-      return BookModel(
-        id: json['key'] ?? '',
-        title: json['title'] ?? 'Unknown Title',
-        author: (json['authors'] != null && json['authors'].isNotEmpty)
-            ? json['authors'][0]['name'] ?? 'Unknown Author'
-            : 'Unknown Author',
-        imagePath: json['cover']?['medium'] ?? json['cover']?['small'] ?? '',
-        genre: (json['subjects'] != null && json['subjects'].isNotEmpty)
-            ? json['subjects'][0]
-            : 'Unknown Genre',
-        rating: 0.0,
-        available: true,
-        notes: json['notes'] ?? '',
-      );
-    }
+    return BookModel(
+      id: json['id'] ?? '',
+      title: volumeInfo['title'] ?? 'Unknown Title',
+      author:
+          (volumeInfo['authors'] != null &&
+              (volumeInfo['authors'] as List).isNotEmpty)
+          ? volumeInfo['authors'][0]
+          : 'Unknown Author',
+      imagePath: volumeInfo['imageLinks']?['thumbnail'] ?? '',
+      genre:
+          (volumeInfo['categories'] != null &&
+              (volumeInfo['categories'] as List).isNotEmpty)
+          ? volumeInfo['categories'][0]
+          : 'Unknown Genre',
+      rating: (volumeInfo['averageRating'] != null)
+          ? (volumeInfo['averageRating'] as num).toDouble()
+          : 0.0,
+      available: true,
+      notes: volumeInfo['description'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'key': id,
+      'id': id,
       'title': title,
       'author': author,
       'imagePath': imagePath,

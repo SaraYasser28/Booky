@@ -12,15 +12,14 @@ class FavCubit extends Cubit<List<BookModel>> {
   void toggleFavorite(BookModel book) {
     if (isFavorite(book)) {
       _favBox.delete(book.id);
-      emit(state.where((b) => b.id != book.id).toList());
     } else {
       _favBox.put(book.id, book);
-      emit([...state, book]);
     }
+    emit(_favBox.values.toList());
   }
 
   bool isFavorite(BookModel book) {
-    return state.any((b) => b.id == book.id);
+    return _favBox.containsKey(book.id);
   }
 
   List<BookModel> getFavorites() {
