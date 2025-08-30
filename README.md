@@ -53,6 +53,7 @@ The app features **user authentication, book browsing, favorites management, sea
 
 ## Project Structure
 
+```
 lib/
 ├── core/
 │   ├── constants/     # App colors, image paths
@@ -75,7 +76,7 @@ lib/
 │   │   ├── view/      # Search screen
 │
 ├── main.dart
-
+```
 
 ---
 
@@ -94,3 +95,4 @@ Coming soon...
 * [ ] Dark mode support
 
 ---
+
