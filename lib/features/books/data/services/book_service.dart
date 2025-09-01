@@ -24,9 +24,8 @@ class BookService {
     int maxResults = 40,
     int startIndex = 0,
   }) async {
-    final encodedGenre = Uri.encodeComponent(genre);
     final url =
-        '$baseUrl?q=subject:$encodedGenre&maxResults=$maxResults&startIndex=$startIndex';
+        '$baseUrl?q=subject:$genre&maxResults=$maxResults&startIndex=$startIndex';
 
     final response = await http.get(Uri.parse(url));
 

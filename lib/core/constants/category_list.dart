@@ -15,12 +15,12 @@ const List<CategoryModel> categories = [
   CategoryModel(
     title: "Crime",
     imagePath: AppImages.crime,
-    apiQuery: "True Crime",
+    apiQuery: "True+Crime",
   ),
   CategoryModel(
     title: "Young Adult",
     imagePath: AppImages.youngAdult,
-    apiQuery: "Juvenile Fiction",
+    apiQuery: "Juvenile+Fiction",
   ),
   CategoryModel(
     title: "Horror",
@@ -35,7 +35,7 @@ const List<CategoryModel> categories = [
   CategoryModel(
     title: "Science Fiction",
     imagePath: AppImages.fiction,
-    apiQuery: "Science Fiction",
+    apiQuery: "Science+Fiction",
   ),
   CategoryModel(
     title: "Mystery",
@@ -60,7 +60,7 @@ const List<CategoryModel> categories = [
   CategoryModel(
     title: "Biography",
     imagePath: AppImages.fiction,
-    apiQuery: "Biography",
+    apiQuery: "Biography+&+Autobiography",
   ),
   CategoryModel(
     title: "Self-Help",
@@ -70,6 +70,6 @@ const List<CategoryModel> categories = [
   CategoryModel(
     title: "Children",
     imagePath: AppImages.youngAdult,
-    apiQuery: "Children",
+    apiQuery: "Juvenile+Nonfiction",
   ),
 ];
